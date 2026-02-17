@@ -1,5 +1,6 @@
 package org.gatex.patientservices.config;
 
+import lombok.RequiredArgsConstructor;
 import org.gatex.patientservices.security.HeaderAuthenticationFilter;
 import org.gatex.patientservices.security.RestAccessDeniedHandler;
 import org.gatex.patientservices.security.RestAuthenticationEntryPoint;
@@ -15,35 +16,51 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final HeaderAuthenticationFilter headerAuthenticationFilter;
     private final RestAuthenticationEntryPoint authenticationEntryPoint;
     private final RestAccessDeniedHandler accessDeniedHandler;
 
-    public SecurityConfig(
-            HeaderAuthenticationFilter headerAuthenticationFilter,
-            RestAuthenticationEntryPoint authenticationEntryPoint,
-            RestAccessDeniedHandler accessDeniedHandler
-    ) {
-        this.headerAuthenticationFilter = headerAuthenticationFilter;
-        this.authenticationEntryPoint = authenticationEntryPoint;
-        this.accessDeniedHandler = accessDeniedHandler;
-    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(ex -> ex
+
+                .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler)
                 )
+
                 .authorizeHttpRequests(auth -> auth
+
+                        // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // ADMIN only
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        // RECEPTION & ADMIN
+                        .requestMatchers("/api/reception/**")
+                        .hasAnyRole("ADMIN", "RECEPTION")
+
+                        // DOCTOR & ADMIN
+                        .requestMatchers("/api/doctor/**")
+                        .hasAnyRole("ADMIN", "DOCTOR")
+
+                        // PATIENT APIs (all authenticated users)
+                        .requestMatchers("/api/patients/**")
+                        .hasAnyRole("ADMIN", "RECEPTION", "DOCTOR")
+
+                        .requestMatchers("/api/billing/**")
+                        .hasAnyRole("ADMIN", "BILLING")
+
+                        // Everything else must be authenticated
                         .anyRequest().authenticated()
                 )
+
                 .addFilterBefore(
                         headerAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
