@@ -1,8 +1,10 @@
 package org.gatex.patientservices.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.gatex.patientservices.repository.PatientRepository;
 import org.gatex.patientservices.entity.Patient;
 import org.gatex.patientservices.service.PatientService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,5 +29,12 @@ public class PatientController {
     @GetMapping
     public List<Patient> getAll() {
         return service.getAll();
+    }
+
+    private final PatientRepository patientRepository;
+
+    @GetMapping("/count")
+    public ResponseEntity<Long> countPatients() {
+        return ResponseEntity.ok(patientRepository.count());
     }
 }
