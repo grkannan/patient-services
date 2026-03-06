@@ -1,7 +1,5 @@
 package org.gatex.patientservices.entity;
 
-
-
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -31,7 +29,9 @@ public class Visit {
 
     private LocalDateTime visitDate = LocalDateTime.now();
 
-    private String status;
-    private LocalDateTime completedAt;
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    private VisitStatus status = VisitStatus.PENDING;
+
+    private LocalDateTime completedAt = null;
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

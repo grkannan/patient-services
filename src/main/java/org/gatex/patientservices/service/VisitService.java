@@ -2,64 +2,55 @@ package org.gatex.patientservices.service;
 
 import lombok.RequiredArgsConstructor;
 import org.gatex.patientservices.entity.Visit;
+import org.gatex.patientservices.entity.VisitStatus;
 import org.gatex.patientservices.repository.VisitRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class VisitService {
 
     private final VisitRepository visitRepository;
-    private final BillingService billingService;
 
-    @Transactional
     public Visit createVisit(Long patientId, Long doctorId) {
-        Visit visit = new Visit();
-        visit.setPatientId(patientId);
-        visit.setDoctorId(doctorId);
-        visit.setStatus("OPEN");
-        visit.setCreatedAt(LocalDateTime.now());
+        Visit visit = Visit.builder()
+                .patientId(patientId)
+                .doctorId(doctorId)
+                .status(VisitStatus.valueOf("PENDING"))
+                .createdAt(LocalDateTime.now())
+                .visitDate(LocalDateTime.now())
+                .build();
+
         return visitRepository.save(visit);
     }
 
-    @Transactional
-    public Visit consult(Long id, String diagnosis, String prescription) {
-        Visit visit = getVisit(id);
+    public List<Visit> getDoctorVisits(Long doctorId) {
+        return visitRepository.findByDoctorIdAndStatus(doctorId, VisitStatus.valueOf("PENDING"));
+    }
 
-        if (!"OPEN".equals(visit.getStatus())) {
-            throw new RuntimeException("Visit not open for consultation");
-        }
+    public Visit consult(Long id, String diagnosis, String prescription) {
+        Visit visit = visitRepository.findById(id).orElseThrow();
 
         visit.setDiagnosis(diagnosis);
         visit.setPrescription(prescription);
+        visit.setStatus(VisitStatus.valueOf("CONSULTING"));
 
         return visitRepository.save(visit);
     }
 
-    @Transactional
     public Visit completeVisit(Long id) {
-        Visit visit = getVisit(id);
+        Visit visit = visitRepository.findById(id).orElseThrow();
 
-        if (!"OPEN".equals(visit.getStatus())) {
-            throw new RuntimeException("Visit already completed");
-        }
-
-        visit.setStatus("COMPLETED");
+        visit.setStatus(VisitStatus.valueOf("COMPLETED"));
         visit.setCompletedAt(LocalDateTime.now());
 
-        visitRepository.save(visit);
-
-        billingService.generateBill(visit);
-
-        return visit;
+        return visitRepository.save(visit);
     }
 
-    private Visit getVisit(Long id) {
-        return visitRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Visit not found"));
+    public Long countVisits() {
+        return visitRepository.count();
     }
-
 }

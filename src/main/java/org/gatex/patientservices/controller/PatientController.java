@@ -1,7 +1,6 @@
 package org.gatex.patientservices.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.gatex.patientservices.repository.PatientRepository;
 import org.gatex.patientservices.entity.Patient;
 import org.gatex.patientservices.service.PatientService;
 import org.springframework.http.ResponseEntity;
@@ -17,24 +16,22 @@ public class PatientController {
     private final PatientService service;
 
     @PostMapping
-    public Patient create(@RequestBody Patient patient) {
-        return service.create(patient);
+    public ResponseEntity<Patient> create(@RequestBody Patient patient) {
+        return ResponseEntity.ok(service.create(patient));
     }
 
     @GetMapping("/{id}")
-    public Patient get(@PathVariable Long id) {
-        return service.getById(id);
+    public ResponseEntity<Patient> get(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
     @GetMapping
-    public List<Patient> getAll() {
-        return service.getAll();
+    public ResponseEntity<List<Patient>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
-
-    private final PatientRepository patientRepository;
 
     @GetMapping("/count")
     public ResponseEntity<Long> countPatients() {
-        return ResponseEntity.ok(patientRepository.count());
+        return ResponseEntity.ok(service.count());
     }
 }

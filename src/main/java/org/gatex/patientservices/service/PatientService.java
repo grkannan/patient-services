@@ -25,4 +25,7 @@ public class PatientService {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
     }
+    public Long count() {
+        return repository.count();
+    }
 }
