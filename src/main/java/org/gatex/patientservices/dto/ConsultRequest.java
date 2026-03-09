@@ -1,8 +1,10 @@
 package org.gatex.patientservices.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class ConsultRequest {
     private String diagnosis;
     private String prescription;

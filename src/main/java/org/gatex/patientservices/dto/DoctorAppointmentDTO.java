@@ -8,7 +8,8 @@ import lombok.Data;
 public class DoctorAppointmentDTO {
 
     private Long id;
-    private String patientName;
+    private Long visitId;
+    private String fullName;
     private String appointmentDate;
     private String reason;
     private String status;

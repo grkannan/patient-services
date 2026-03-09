@@ -27,4 +27,8 @@ public class Appointment {
 
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
+
+    @OneToOne
+    @JoinColumn(name = "visit_id")
+    private Visit visit;
 }

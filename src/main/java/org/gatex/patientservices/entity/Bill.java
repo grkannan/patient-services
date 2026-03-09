@@ -22,7 +22,8 @@ public class Bill {
     @Column(nullable = false)
     private Long patientId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "visit_id")
+
     private Long visitId;
 
     @Column(nullable = false)

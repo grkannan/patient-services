@@ -7,6 +7,7 @@ import org.gatex.patientservices.entity.Bill;
 import org.gatex.patientservices.service.BillingService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/billing")
@@ -15,10 +16,17 @@ public class BillingController {
 
     private final BillingService billingService;
 
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTION','DOCTOR', 'BILLING')")
+    public List<Bill> getAllBills() {
+        return billingService.getAllBills();
+    }
+
     @PostMapping("/{billId}/add-item")
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPTION')")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTION', 'BILLING')")
     public Bill addItem(@PathVariable Long billId,
                         @RequestBody @Valid AddBillItemRequest request) {
+
         return billingService.addItem(
                 billId,
                 request.getDescription(),
@@ -26,17 +34,25 @@ public class BillingController {
     }
 
     @PutMapping("/{billId}/pay")
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPTION')")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTION', 'BILLING')")
     public Bill pay(@PathVariable Long billId,
                     @RequestBody @Valid PayBillRequest request) {
+
         return billingService.markAsPaid(
                 billId,
                 request.getPaymentMethod());
     }
 
     @GetMapping("/{billId}")
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPTION','DOCTOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTION','DOCTOR', 'BILLING')")
     public Bill getBill(@PathVariable Long billId) {
         return billingService.getBill(billId);
+    }
+
+    // 🔥 GET BILL USING VISIT ID
+    @GetMapping("/visit/{visitId}")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTION','DOCTOR', 'BILLING')")
+    public Bill getBillByVisit(@PathVariable Long visitId) {
+        return billingService.getBillByVisitId(visitId);
     }
 }

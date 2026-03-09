@@ -6,8 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -23,8 +22,16 @@ public class Patient {
     private String phone;
     private String address;
     private String bloodGroup;
+    private Boolean active;
+    private LocalDateTime createdAt;
 
-    private Boolean active = true;
-
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.active == null) {
+            this.active = true;
+        }
+    }
 }
