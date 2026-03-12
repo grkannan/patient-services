@@ -7,7 +7,6 @@ import org.gatex.patientservices.entity.VisitStatus;
 import org.gatex.patientservices.repository.PatientRepository;
 import org.gatex.patientservices.repository.VisitRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,14 +19,15 @@ public class VisitService {
     private final VisitRepository visitRepository;
     private final PatientRepository patientRepository;
     private final BillingService billingService;
+    private final AppointmentService appointmentService;
 
     // Create visit
-    public Visit createVisit(Long patientId, Long doctorId) {
+    public Visit createVisit(Long patientId, Long doctorId, LocalDateTime visitDate) {
         Visit visit = Visit.builder()
                 .patientId(patientId)
                 .doctorId(doctorId)
                 .status(VisitStatus.PENDING)
-                .visitDate(LocalDateTime.now())
+                .visitDate(visitDate)
                 .createdAt(LocalDateTime.now())
                 .build();
         return visitRepository.save(visit);
@@ -35,17 +35,18 @@ public class VisitService {
 
     // Fetch doctor's pending visits with patient name
     public List<DoctorVisitDTO> getDoctorVisits(Long doctorId) {
-        List<Visit> visits = visitRepository.findByDoctorIdAndStatus(doctorId, VisitStatus.PENDING);
+        List<Visit> visits = visitRepository.findByDoctorId(doctorId);
         return visits.stream().map(v -> {
             String fullName = patientRepository.findById(v.getPatientId())
                     .map(p -> p.getFullName())
                     .orElse("Unknown Patient");
-            
+            String reason = String.valueOf(appointmentService.getReason(v.getId()));
             return new DoctorVisitDTO(
                     v.getId(),
                     v.getPatientId(),
                     fullName,
                     v.getVisitDate(),
+                    reason,
                     v.getStatus().name() // convert enum to string
             );
         }).collect(Collectors.toList());

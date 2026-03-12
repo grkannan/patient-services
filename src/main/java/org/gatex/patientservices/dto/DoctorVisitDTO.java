@@ -12,5 +12,6 @@ public class DoctorVisitDTO {
     private Long patientId;
     private String patientName;
     private LocalDateTime visitDate;
+    private String reason;
     private String status; // PENDING, COMPLETED etc.
 }

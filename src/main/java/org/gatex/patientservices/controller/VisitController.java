@@ -28,7 +28,7 @@ public class VisitController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','RECEPTION')")
     public Visit createVisit(@RequestBody VisitRequest request) {
-        return visitService.createVisit(request.getPatientId(), request.getDoctorId());
+        return visitService.createVisit(request.getPatientId(), request.getDoctorId(), request.getVisitDate());
     }
 
     // Doctor gets only pending visits

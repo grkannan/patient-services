@@ -55,4 +55,5 @@ public class BillingController {
     public Bill getBillByVisit(@PathVariable Long visitId) {
         return billingService.getBillByVisitId(visitId);
     }
+
 }

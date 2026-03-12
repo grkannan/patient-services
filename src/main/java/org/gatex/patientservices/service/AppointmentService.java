@@ -57,4 +57,13 @@ public class AppointmentService {
 
         }).toList();
     }
+
+    public String getReason(Long appointmentId) {
+        return repository.findById(appointmentId)
+                .map(appointment -> {
+                    String reasonText = appointment.getReason();
+                    return reasonText;
+                })
+                .orElse("General Checkup"); // Return -1 if appointment doesn't exist
+    }
 }
